@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Server } from "http";
 import app from "./app";
 import mongoose from "mongoose";
@@ -21,7 +22,7 @@ async function bootstrap() {
 bootstrap();
 
 // todo: Handle unhandled promise rejections [ which is connected with promise]
-process.on("unhandledRejection", (reason: any, promise: Promise<any>) => {
+process.on("unhandledRejection", (reason: string | Error, promise: Promise<unknown>) => {
   console.error("❌ UNHANDLED REJECTION! Shutting down...");
   console.error("reason : ", reason);
   console.error("Promise:", promise);
