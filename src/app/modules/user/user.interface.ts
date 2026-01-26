@@ -1,41 +1,50 @@
-import { Types } from "mongoose";
+import { Model, Types } from "mongoose";
 
 export enum Role {
-    SUPER_ADMIN = "SUPER_ADMIN",
-    ADMIN = "ADMIN",
-    USER = "USER",
-    GUIDE = "GUIDE",
+  SUPER_ADMIN = "SUPER_ADMIN",
+  ADMIN = "ADMIN",
+  USER = "USER",
+  GUIDE = "GUIDE",
 }
 
 //auth providers
 /**
- * email, password 
+ * email, password
  * google authentication
  */
 
 export interface IAuthProvider {
-    provider: string;  // "Google", "Credential"
-    providerId: string;
+  provider: "google" | "credential"; // "Google", "Credential"
+  providerId: string;
 }
 
 export enum IsActive {
-    ACTIVE = "ACTIVE",
-    INACTIVE = "INACTIVE",
-    BLOCKED = "BLOCKED"
+  ACTIVE = "ACTIVE",
+  INACTIVE = "INACTIVE",
+  BLOCKED = "BLOCKED",
 }
 
 export interface IUser {
-    name: string;
-    email: string;
-    password?: string;
-    phone?: string;
-    picture?: string;
-    address?: string;
-    isDeleted?: string;
-    isActive?: IsActive;
-    isVerified?: string;
-    role: Role;
-    auths: IAuthProvider[]
-    bookings?: Types.ObjectId[]
-    guides?: Types.ObjectId[]
+  name: string;
+  email: string;
+  password?: string;
+  phone?: string;
+  picture?: string;
+  address?: string;
+  isDeleted?: string;
+  isActive?: IsActive;
+  isVerified?: boolean;
+  role: Role;
+  auths: IAuthProvider[];
+  bookings?: Types.ObjectId[];
+  guides?: Types.ObjectId[];
+}
+
+// Static methods (methods on the Model)
+export interface IUserModel extends Model<IUser> {
+  isUserExists(email: string): Promise<IUser | null>;
+  isPasswordMatched(
+    plainTextPassword: string,
+    hashedPassword: string,
+  ): Promise<boolean>;
 }

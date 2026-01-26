@@ -3,6 +3,8 @@ import { Server } from "http";
 import app from "./app";
 import mongoose from "mongoose";
 import { env } from "./app/config";
+import { seedSuperAdmin } from "./app/utils/seed.super.admin";
+
 
 
 let server: Server | null = null;
@@ -19,7 +21,10 @@ async function bootstrap() {
   }
 }
 
-bootstrap();
+(async () => {
+  await bootstrap()
+  await seedSuperAdmin()
+})()
 
 // todo: Handle unhandled promise rejections [ which is connected with promise]
 process.on("unhandledRejection", (reason: string | Error, promise: Promise<unknown>) => {

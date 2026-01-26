@@ -1,5 +1,8 @@
 import { model, Schema } from "mongoose";
-import { IAuthProvider, IsActive, IUser, Role } from "./user.interface";
+import { IAuthProvider, IsActive, IUser, IUserModel, Role } from "./user.interface";
+import bcrypt from 'bcrypt'
+import { env } from "../../config";
+
 
 // embaded schema
 const authProviderSchema = new Schema<IAuthProvider>(
@@ -56,7 +59,7 @@ const userSchema = new Schema<IUser>(
       default: IsActive.ACTIVE,
     },
     isVerified: {
-      type: String,
+      type: Boolean,
       default: false,
     },
     auths: [authProviderSchema],
@@ -68,5 +71,23 @@ const userSchema = new Schema<IUser>(
   }
 );
 
+// pre middleware hooks
+userSchema.pre('save', async function (this: any) {
+  if (!this.isModified('password') || !this.password) return;
+  const hashed = await bcrypt.hash(
+    String(this.password), Number(env.bcrypt_salt_rounds)
+  );
+  this.password = hashed;
+})
 
-export const User = model<IUser>("User", userSchema)
+//  Check if user exists by email - static method
+userSchema.statics.isUserExists = async function (email: string) {
+  return await this.findOne({ email }).select("+password");
+};
+
+// static method - passwordMatched
+userSchema.statics.isPasswordMatched = async function (plainTextPassword,hashedPassword) {
+  return await bcrypt.compare(plainTextPassword,hashedPassword)
+}
+
+export const User = model<IUser,IUserModel>("User", userSchema)

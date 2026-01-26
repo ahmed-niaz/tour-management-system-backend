@@ -1,12 +1,21 @@
 import { Request, Response, Router } from "express";
 import { userController } from "./user.controller";
-
+import validateRequest from "../../middlewares/validate.request";
+import { userValidation } from "./user.validation";
+import { checkAuth } from "../../middlewares/check.auth";
+import { Role } from "./user.interface";
 
 const router = Router();
 
+
+
 // user registration
-router.post("/register", userController.registerUser);
-router.get('/all',userController.getUser);
+router.post(
+  "/register",
+  validateRequest(userValidation.createUserZodSchema),
+  userController.registerUser
+);
+router.get("/all",checkAuth(Role.ADMIN, Role.SUPER_ADMIN), userController.getUser);
 
 router.get("/", async (req: Request, res: Response) => {
   res.send({
