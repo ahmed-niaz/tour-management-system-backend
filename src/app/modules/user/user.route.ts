@@ -7,15 +7,22 @@ import { Role } from "./user.interface";
 
 const router = Router();
 
-
-
 // user registration
 router.post(
   "/register",
   validateRequest(userValidation.createUserZodSchema),
-  userController.registerUser
+  userController.registerUser,
 );
-router.get("/all",checkAuth(Role.ADMIN, Role.SUPER_ADMIN), userController.getUser);
+router.get(
+  "/all",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  userController.getUser,
+);
+router.patch(
+  "/:id",validateRequest(userValidation.updateUserZodSchema),
+  checkAuth(...Object.values(Role)),
+  userController.updateUser,
+);
 
 router.get("/", async (req: Request, res: Response) => {
   res.send({

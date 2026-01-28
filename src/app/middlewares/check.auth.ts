@@ -47,6 +47,6 @@ export const checkAuth = (...authRoles: string[]) =>
     if (!authRoles.includes(verifiedToken.role)) {
       throw new AppError(status.UNAUTHORIZED, "you are not permitted");
     }
-
+    req.user = verifiedToken;
     next();
   });

@@ -72,7 +72,7 @@ const userSchema = new Schema<IUser>(
 );
 
 // pre middleware hooks
-userSchema.pre('save', async function (this: any) {
+userSchema.pre('save', async function (this) {
   if (!this.isModified('password') || !this.password) return;
   const hashed = await bcrypt.hash(
     String(this.password), Number(env.bcrypt_salt_rounds)
