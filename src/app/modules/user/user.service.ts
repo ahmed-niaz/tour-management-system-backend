@@ -61,10 +61,13 @@ const updateUser = async (
   }
 
   if (payload.password) {
-    payload.password = await bcrypt.hash(
-      payload.password,
-      Number(env.bcrypt_salt_rounds),
-    );
+    // payload.password = await bcrypt.hash(
+    //   payload.password,
+    //   Number(env.bcrypt_salt_rounds),
+    // );
+
+     const rounds = Number(env.bcrypt_salt_rounds) || 10;
+    payload.password = await bcrypt.hash(payload.password, rounds);
   }
 
   const userUpdated = await User.findByIdAndUpdate(userId, payload, {
