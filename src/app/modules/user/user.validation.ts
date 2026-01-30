@@ -63,7 +63,13 @@ const updateUserZodSchema = z.object({
     .optional(),
 });
 
+const resetPasswordZodSchema = z.object({
+  oldPassword: z.string().min(1, "Old password is required"),
+  newPassword: passwordSchema,
+});
+
 export const userValidation = {
   createUserZodSchema,
   updateUserZodSchema,
+  resetPasswordZodSchema,
 };

@@ -9,7 +9,10 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRES: z.string(),
   JWT_ACCESS_SECRET: z.string(),
   SUPER_ADMIN_EMAIL: z.string(),
-  SUPER_ADMIN_PASSWORD: z.string()
+  SUPER_ADMIN_PASSWORD: z.string(),
+  JWT_REFRESH_EXPIRES: z.string(),
+  JWT_REFRESH_SECRET: z.string(),
+
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -28,5 +31,7 @@ export const env = {
   jwt_access_secret: parsedEnv.data.JWT_ACCESS_SECRET,
   jwt_access_expiresIn: parsedEnv.data.JWT_ACCESS_EXPIRES,
   super_admin_email: parsedEnv.data.SUPER_ADMIN_EMAIL,
-  super_admin_password: parsedEnv.data.SUPER_ADMIN_PASSWORD
+  super_admin_password: parsedEnv.data.SUPER_ADMIN_PASSWORD,
+  jwt_refresh_secret: parsedEnv.data.JWT_REFRESH_SECRET,
+  jwt_refresh_expiresIn : parsedEnv.data.JWT_REFRESH_EXPIRES
 } as const;

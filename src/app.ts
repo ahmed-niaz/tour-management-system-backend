@@ -5,9 +5,11 @@ import cors from "cors";
 import router from "./app/route";
 import { globalErrorHandler } from "./app/middlewares/global.error.handler";
 import { notFound } from "./app/middlewares/not.found";
+import cookieParser from 'cookie-parser'
 
 // parsers
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 

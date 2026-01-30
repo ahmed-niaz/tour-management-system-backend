@@ -74,11 +74,10 @@ const userSchema = new Schema<IUser>(
 // pre middleware hooks
 userSchema.pre('save', async function (this) {
   if (!this.isModified('password') || !this.password) return;
-  const hashed = await bcrypt.hash(
-    String(this.password), Number(env.bcrypt_salt_rounds)
-  );
+  const rounds = Number(env.bcrypt_salt_rounds) || 10;
+  const hashed = await bcrypt.hash(String(this.password), rounds);
   this.password = hashed;
-})
+});
 
 //  Check if user exists by email - static method
 userSchema.statics.isUserExists = async function (email: string) {
