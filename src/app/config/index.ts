@@ -12,7 +12,11 @@ const envSchema = z.object({
   SUPER_ADMIN_PASSWORD: z.string(),
   JWT_REFRESH_EXPIRES: z.string(),
   JWT_REFRESH_SECRET: z.string(),
-
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CALLBACK_URL: z.string().optional(),
+  EXPRESS_SESSION_SECRET: z.string().optional(),
+  FRONTEND_URL: z.string().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -22,6 +26,8 @@ if (!parsedEnv.success) {
   console.error("❌ Invalid environment variables:", parsedEnv.error.format());
   process.exit(1);
 }
+
+
 
 export const env = {
   port: Number(parsedEnv.data.PORT),
@@ -33,5 +39,10 @@ export const env = {
   super_admin_email: parsedEnv.data.SUPER_ADMIN_EMAIL,
   super_admin_password: parsedEnv.data.SUPER_ADMIN_PASSWORD,
   jwt_refresh_secret: parsedEnv.data.JWT_REFRESH_SECRET,
-  jwt_refresh_expiresIn : parsedEnv.data.JWT_REFRESH_EXPIRES
+  jwt_refresh_expiresIn: parsedEnv.data.JWT_REFRESH_EXPIRES,
+  google_client_id: parsedEnv.data.GOOGLE_CLIENT_ID,
+  google_client_secret: parsedEnv.data.GOOGLE_CLIENT_SECRET,
+  google_callback_url: parsedEnv.data.GOOGLE_CALLBACK_URL || process.env.GOOLGE_CALLBACK_URL,
+  express_session_secret: parsedEnv.data.EXPRESS_SESSION_SECRET,
+  frontend_url: parsedEnv.data.FRONTEND_URL,
 } as const;

@@ -1,11 +1,13 @@
 import status from "http-status";
 import { AppError } from "../../errors/app.errors";
-import { IUser } from "../user/user.interface";
+
 import { User } from "../user/user.model";
-import { refreshAccessToken, userTokens } from "../../utils/user.token";
+import { refreshAccessToken} from "../../utils/user.token";
 import { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
+
+/*
 const credintialsLogin = async (payload: Partial<IUser>) => {
   // todo:  check the user is exist
   const existingUser = await User.isUserExists(payload?.email as string);
@@ -55,6 +57,7 @@ const credintialsLogin = async (payload: Partial<IUser>) => {
     user: rest,
   };
 };
+*/
 
 // todo: generate access token with the help of refresh token
 const generateAccessToken = async (refreshToken: string) => {
@@ -102,7 +105,7 @@ const resetPassword = async (
 };
 
 export const authService = {
-  credintialsLogin,
+  // credintialsLogin,
   generateAccessToken,
   resetPassword,
 };
