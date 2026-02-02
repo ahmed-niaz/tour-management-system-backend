@@ -5,33 +5,66 @@ import { authService } from "./auth.service";
 import { AppError } from "../../errors/app.errors";
 import { NextFunction, Request, Response } from "express";
 import { setAuthCookie } from "../../utils/set.cookie";
-import { userTokens } from "../../utils/user.token";
+
 import { env } from "../../config";
+import passport from "passport";
+import { userTokens } from "../../utils/user.token";
 
-const credintialsLogin = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
-  const result = await authService.credintialsLogin(payload);
+const credintialsLogin = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    // todo: credintials login using passport
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    passport.authenticate("local", async (e: any, user: any, info: any) => {
+      if (e) {
+        return next(e);
+      }
 
-  // todo: SET cookie in the browser
-  // res.cookie("refreshToken", result.refreshToken, {
-  //   httpOnly: true,
-  //   secure: false,
-  // });
+      if (!user) {
+        return next(new AppError(401, info.message));
+      }
 
-  setAuthCookie(res, result);
+      const newUserTokens = await userTokens(user);
 
-  // res.cookie("accessToken", result.accessToken, {
-  //   httpOnly: true,
-  //   secure: false,
-  // });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password: pass, ...rest } = user.toObject();
 
-  sendResponse(res, {
-    success: true,
-    statusCode: status.OK,
-    message: "user login successfull",
-    data: result,
-  });
-});
+      setAuthCookie(res, newUserTokens);
+
+      sendResponse(res, {
+        success: true,
+        statusCode: status.OK,
+        message: "user login successfull",
+        data: {
+          accessToken: newUserTokens.accessToken,
+          refreshToken: newUserTokens.refreshToken,
+          user: rest,
+        },
+      });
+    })(req, res, next);
+
+    // const payload = req.body;
+    // const result = await authService.credintialsLogin(payload);
+    // todo: SET cookie in the browser
+    // res.cookie("refreshToken", result.refreshToken, {
+    //   httpOnly: true,
+    //   secure: false,
+    // });
+
+    // setAuthCookie(res, result);
+
+    // res.cookie("accessToken", result.accessToken, {
+    //   httpOnly: true,
+    //   secure: false,
+    // });
+
+    // sendResponse(res, {
+    //   success: true,
+    //   statusCode: status.OK,
+    //   message: "user login successfull",
+    //   data: result,
+    // });
+  },
+);
 
 // todo: GENERATE or CREATE new ACCESS TOKEN using refresh Token
 const generateAccessToken = catchAsync(async (req, res) => {
@@ -97,7 +130,6 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
 // todo: google callback controller
 const googleCallbackController = catchAsync(
   async (req: Request, res: Response, _next: NextFunction) => {
-    
     let redirectTo = req.query.state ? (req.query.state as string) : "";
 
     if (redirectTo.startsWith("/")) {

@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { env } from "../config";
-import { IAuthProvider, IUser, Role } from "../modules/user/user.interface";
+import { IAuthProvider,Role } from "../modules/user/user.interface";
 import { User } from "../modules/user/user.model";
 
 
@@ -25,14 +25,13 @@ export const seedSuperAdmin = async () => {
       providerId: env.super_admin_email,
     };
 
-    const payload: IUser = {
+    const payload = {
       name: "Super Admin",
       role: Role.SUPER_ADMIN,
       email: env.super_admin_email,
       password: env.super_admin_password,
       isVerified: true,
       auths: [authProvider],
-      
     };
 
     const superAdmin = await User.create(payload);
