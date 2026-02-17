@@ -5,6 +5,8 @@ import { AppError } from "../../errors/app.errors";
 import { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { env } from "../../config";
+import QueryBuilder from "../../utils/queryBuilders";
+import { userSearchableFields } from "./user.constant";
 
 const registerUser = async (payload: IUser) => {
   const { email, ...userData } = payload;
@@ -66,7 +68,7 @@ const updateUser = async (
     //   Number(env.bcrypt_salt_rounds),
     // );
 
-     const rounds = Number(env.bcrypt_salt_rounds) || 10;
+    const rounds = Number(env.bcrypt_salt_rounds) || 10;
     payload.password = await bcrypt.hash(payload.password, rounds);
   }
 
@@ -78,17 +80,18 @@ const updateUser = async (
   return userUpdated;
 };
 
-const getUser = async () => {
-  const result = await User.find();
+const getUser = async (query: Record<string, unknown>) => {
+  const userQuery = new QueryBuilder(User.find(), query)
+    .search(userSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
 
-  // todo: total users
-  const totalUsers = await User.countDocuments();
-  return {
-    data: result,
-    meta: {
-      total: totalUsers,
-    },
-  };
+  const data = await userQuery.modelQuery;
+  const meta = await userQuery.countTotal();
+
+  return { data, meta };
 };
 
 export const userService = {
