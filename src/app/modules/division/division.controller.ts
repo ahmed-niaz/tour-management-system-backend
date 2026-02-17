@@ -18,7 +18,10 @@ const createDivision = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllDivisions = catchAsync(async (req, res) => {
-  const result = await divisionService.getAllDivisions();
+  const query = req.query;
+  const result = await divisionService.getAllDivisions(
+    query as Record<string, string>,
+  );
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -26,6 +29,17 @@ const getAllDivisions = catchAsync(async (req, res) => {
     message: "division data created successfully",
     meta: result.meta,
     data: result.data,
+  });
+});
+
+const getSingleDivision = catchAsync(async (req, res) => {
+  const slug = req.params.slug as string;
+  const result = await divisionService.getSingleDivision(slug);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "division data created successfully",
+    data: result,
   });
 });
 
@@ -67,6 +81,7 @@ const deleteDivision = catchAsync(async (req: Request, res: Response) => {
 export const divisionController = {
   createDivision,
   getAllDivisions,
+  getSingleDivision,
   updateDivision,
   deleteDivision,
 };

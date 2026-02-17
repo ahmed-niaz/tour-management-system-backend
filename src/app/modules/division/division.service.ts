@@ -2,6 +2,7 @@ import status from "http-status";
 import { AppError } from "../../errors/app.errors";
 import { IDivision } from "./division.interface";
 import { Division } from "./division.model";
+import QueryBuilder from "../../utils/queryBuilders";
 
 const createDivision = async (payload: IDivision) => {
   const existingDivision = await Division.findOne({ name: payload.name });
@@ -27,6 +28,7 @@ const createDivision = async (payload: IDivision) => {
   return createdDivision;
 };
 
+/*
 const getAllDivisions = async () => {
   const result = await Division.find();
   // todo: total users
@@ -36,6 +38,31 @@ const getAllDivisions = async () => {
     meta: {
       total: totalUsers,
     },
+  };
+};
+
+*/
+
+const getAllDivisions = async (query: Record<string, unknown>) => {
+  const divisionSearchableFields = ["name"];
+
+  const divisionQuery = new QueryBuilder(Division.find(), query)
+    .search(divisionSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  const data = await divisionQuery.modelQuery;
+  const meta = await divisionQuery.countTotal();
+
+  return { data, meta };
+};
+
+const getSingleDivision = async (slug: string) => {
+  const division = await Division.findOne({ slug });
+  return {
+    division,
   };
 };
 
@@ -74,6 +101,7 @@ const deleteDivision = async (divisionId: string) => {
 export const divisionService = {
   createDivision,
   getAllDivisions,
+  getSingleDivision,
   updateDivision,
   deleteDivision,
 };

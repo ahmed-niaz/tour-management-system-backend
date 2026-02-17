@@ -4,24 +4,44 @@ import { ITour, ITourType } from "./tour.interface";
 const tourTypeSchema = new Schema<ITourType>(
   {
     name: { type: String, required: true, unique: true },
+    slug: { type: String, unique: true },
   },
   {
     timestamps: true,
   },
 );
 
+// create slug as pre hook
+tourTypeSchema.pre("save", async function () {
+  if (this.isModified("name")) {
+    const baseSlug = this.name.toLowerCase().split(" ").join("-");
+    const baseTourSlug = `${baseSlug}`;
+    let slug = baseTourSlug;
+
+    let counter = 1;
+    while (await TourType.exists({ slug })) {
+      slug = `${baseTourSlug}-${counter++}`;
+    }
+
+    this.slug = slug;
+  }
+  // No next() needed!
+});
+
 export const TourType = model<ITourType>("TourType", tourTypeSchema);
 
 const tourSchema = new Schema<ITour>(
   {
     title: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
+    slug: { type: String, unique: true },
     description: { type: String },
     images: { type: [String], default: [] },
     location: { type: String },
     costFrom: { type: Number },
     startDate: { type: Date },
     endDate: { type: Date },
+    departureLocation: { type: String },
+    arrivalLocation: { type: String },
     included: { type: [String], default: [] },
     excluded: { type: [String], default: [] },
     amenities: { type: [String], default: [] },
@@ -66,7 +86,7 @@ tourSchema.pre("findOneAndUpdate", async function () {
   const update = this.getUpdate() as Partial<ITour> & {
     $set?: Partial<ITour>;
   };
-  
+
   if (!update) return;
 
   // Get the name from wherever it is
@@ -92,6 +112,5 @@ tourSchema.pre("findOneAndUpdate", async function () {
     this.setUpdate(update);
   }
 });
-
 
 export const Tour = model<ITour>("Tour", tourSchema);

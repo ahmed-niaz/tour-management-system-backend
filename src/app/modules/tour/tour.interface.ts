@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 
 export interface ITourType {
     name: string;
+    slug: string;
 }
 export interface ITour {
     title: string;
@@ -10,8 +11,10 @@ export interface ITour {
     images?: string[];
     location?: string;
     costFrom?: number;
-    startDate?: Date
+    startDate?: Date;
     endDate?: Date;
+    departureLocation?:string;
+    arrivalLocation?: string;
     included?: string[];
     excluded?: string[]
     amenities?: string[];

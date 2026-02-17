@@ -17,14 +17,31 @@ const createTourType = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getTourTypes = catchAsync(async (req: Request, res: Response) => {
-  const result = await tourService.getTourTypes();
+  const query = req.query;
+  const result = await tourService.getTourTypes(
+    query as Record<string, unknown>,
+  );
 
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
-    message: "division data created successfully",
+    message: "tour data retrieved successfully",
     meta: result.meta,
     data: result.data,
+  });
+});
+
+const getSingleTourType = catchAsync(async (req: Request, res: Response) => {
+  const slug = Array.isArray(req.params.slug)
+    ? req.params.slug[0]
+    : req.params.slug;
+  const result = await tourService.getSingleTourType(slug);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "tour data retrieved successfully",
+
+    data: result,
   });
 });
 
@@ -75,7 +92,8 @@ const createTour = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllTours = catchAsync(async (req: Request, res: Response) => {
-  const result = await tourService.getAllTours();
+  const query = req.query;
+  const result = await tourService.getAllTours(query as Record<string, string>);
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -83,6 +101,20 @@ const getAllTours = catchAsync(async (req: Request, res: Response) => {
     message: "get all tour data successfully",
     meta: result.meta,
     data: result.data,
+  });
+});
+
+const getSingleTour = catchAsync(async (req: Request, res: Response) => {
+  const slug = Array.isArray(req.params.slug)
+    ? req.params.slug[0]
+    : req.params.slug;
+  const result = await tourService.getSingleTour(slug);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "tour data retrieved successfully",
+
+    data: result,
   });
 });
 
@@ -121,9 +153,11 @@ export const tourController = {
   createTour,
   createTourType,
   getTourTypes,
+  getSingleTourType,
   updateTourType,
   deleteTourType,
   updateTour,
   getAllTours,
+  getSingleTour,
   deleteTour,
 };
