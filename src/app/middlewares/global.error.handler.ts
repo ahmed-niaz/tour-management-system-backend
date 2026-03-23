@@ -6,13 +6,34 @@ import { handlerDuplicateError } from "../helpers/handle.duplicate.error";
 import { handleCastError } from "../helpers/handle.cast.error";
 import { handlerZodError } from "../helpers/handle.zod.error";
 import { handlerValidationError } from "../helpers/handle.validation.error";
+import { DestroyImageFromCloudinary } from "../helpers/handle.destroy.couldinary.image";
 
-export const globalErrorHandler = (
+export const globalErrorHandler = async (
   e: unknown,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction,
 ) => {
+  // Delete uploaded image(s) from Cloudinary if an error occurs
+  const destroyer = new DestroyImageFromCloudinary();
+
+  // multer-storage-cloudinary sets secure_url, not path
+  type CloudinaryFile = Express.Multer.File & { secure_url?: string };
+  if (req.files && Array.isArray(req.files)) {
+    for (const file of req.files as CloudinaryFile[]) {
+      const url = file.secure_url || file.path;
+      if (url) {
+        await destroyer.deleteImage(url);
+      }
+    }
+  } else if (req.file) {
+    const f = req.file as CloudinaryFile;
+    const url = f.secure_url || f.path;
+    if (url) {
+      await destroyer.deleteImage(url);
+    }
+  }
+
   let errorSources: TErrorSources[] = [];
   let statusCode = 500;
   let message = "something went wrong 🌏";

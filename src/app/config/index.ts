@@ -28,6 +28,10 @@ const envSchema = z.object({
   SSL_SUCCESS_FRONTEND_URL: z.string().optional(),
   SSL_FAIL_FRONTEND_URL: z.string().optional(),
   SSL_CANCEL_FRONTEND_URL: z.string().optional(),
+  // todo: cloudinary
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -65,4 +69,7 @@ export const env = {
   ssl_success_frontend_url: parsedEnv.data.SSL_SUCCESS_FRONTEND_URL,
   ssl_fail_frontend_url: parsedEnv.data.SSL_FAIL_FRONTEND_URL,
   ssl_cancel_frontend_url: parsedEnv.data.SSL_CANCEL_FRONTEND_URL,
+  cloudinary_cloud_name: parsedEnv.data.CLOUDINARY_CLOUD_NAME,
+  cloudinary_api_key: parsedEnv.data.CLOUDINARY_API_KEY,
+  cloudinary_api_secret: parsedEnv.data.CLOUDINARY_API_SECRET,
 } as const;

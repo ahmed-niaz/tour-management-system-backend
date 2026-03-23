@@ -5,7 +5,11 @@ import z from "zod";
 const validateRequest = (schema: z.ZodSchema) => {
   const value = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      req.body = await schema.parseAsync(req.body);
+      if (req.body && req.body.data) {
+        req.body = JSON.parse(req.body.data);
+      }
+
+      req.body = await schema.parseAsync(req.body || {});
 
       next();
     } catch (error) {

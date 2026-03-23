@@ -3,11 +3,23 @@ import catchAsync from "../../utils/catch.async";
 import { divisionService } from "./division.service";
 import { sendResponse } from "../../utils/send.response";
 import status from "http-status";
+import { IDivision } from "./division.interface";
 
 const createDivision = catchAsync(async (req: Request, res: Response) => {
-  const divisionData = req.body;
 
-  const result = await divisionService.createDivision(divisionData);
+//   console.log({
+//     body: req.body,
+// thumbnail: req.file
+//   })
+  // multer-storage-cloudinary merges Cloudinary result onto req.file
+  // Use secure_url (HTTPS) with fallback to path for compatibility
+  const fileAny = req.file as Express.Multer.File & { secure_url?: string };
+  const payload: IDivision = {
+    ...req.body,
+    thumbnail: fileAny?.secure_url || fileAny?.path,
+  };
+
+  const result = await divisionService.createDivision(payload);
 
   sendResponse(res, {
     statusCode: status.OK,
@@ -47,7 +59,11 @@ const updateDivision = catchAsync(async (req: Request, res: Response) => {
   const divisionId = Array.isArray(req.params.id)
     ? req.params.id[0]
     : req.params.id;
-  const payload = req.body;
+  const fileAny = req.file as Express.Multer.File & { secure_url?: string };
+  const payload = {
+    ...req.body,
+    thumbnail: fileAny?.secure_url || fileAny?.path,
+  };
 
   const result = await divisionService.updateDivision(divisionId, payload);
 

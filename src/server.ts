@@ -5,7 +5,9 @@ import mongoose from "mongoose";
 import { env } from "./app/config";
 import { seedSuperAdmin } from "./app/utils/seed.super.admin";
 
+import dns from 'dns'
 
+dns.setServers(['1.1.1.1', '8.8.8.8'])
 
 let server: Server | null = null;
 
