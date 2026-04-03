@@ -28,6 +28,15 @@ const envSchema = z.object({
   SSL_SUCCESS_FRONTEND_URL: z.string().optional(),
   SSL_FAIL_FRONTEND_URL: z.string().optional(),
   SSL_CANCEL_FRONTEND_URL: z.string().optional(),
+  // todo: cloudinary
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
+  SMTP_PASS:z.string(),
+  SMTP_USER: z.string(),
+  SMTP_FROM: z.string(),
+  SMTP_PORT: z.coerce.number(),
+  SMTP_HOST: z.string(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -65,4 +74,12 @@ export const env = {
   ssl_success_frontend_url: parsedEnv.data.SSL_SUCCESS_FRONTEND_URL,
   ssl_fail_frontend_url: parsedEnv.data.SSL_FAIL_FRONTEND_URL,
   ssl_cancel_frontend_url: parsedEnv.data.SSL_CANCEL_FRONTEND_URL,
+  cloudinary_cloud_name: parsedEnv.data.CLOUDINARY_CLOUD_NAME,
+  cloudinary_api_key: parsedEnv.data.CLOUDINARY_API_KEY,
+  cloudinary_api_secret: parsedEnv.data.CLOUDINARY_API_SECRET,
+  smtp_host: parsedEnv.data.SMTP_HOST,
+  smtp_port: parsedEnv.data.SMTP_PORT,
+  smtp_from: parsedEnv.data.SMTP_FROM,
+  smtp_user : parsedEnv.data.SMTP_USER,
+  smtp_pass: parsedEnv.data.SMTP_PASS
 } as const;

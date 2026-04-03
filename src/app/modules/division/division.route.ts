@@ -4,12 +4,13 @@ import { divisionValidation } from "./division.validation";
 import validateRequest from "../../middlewares/validate.request";
 import { checkAuth } from "../../middlewares/check.auth";
 import { Role } from "../user/user.interface";
+import { multerUpload } from "../../config/multer.config";
 
 const router = Router();
 
 router.post(
   "/create",
-  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),multerUpload.single('file'),
   validateRequest(divisionValidation.createDivisionZodSchema),
   divisionController.createDivision,
 );
@@ -20,7 +21,7 @@ router.get("/:slug",divisionController.getSingleDivision);
 
 router.patch(
   "/:id",
-  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),multerUpload.single('file'),
   validateRequest(divisionValidation.updateDivisionSchema),
   divisionController.updateDivision,
 );
