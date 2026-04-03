@@ -5,6 +5,7 @@ import { Role } from "../user/user.interface";
 import validateRequest from "../../middlewares/validate.request";
 import { userValidation } from "../user/user.validation";
 import passport from "passport";
+import { env } from "../../config";
 
 const router = Router();
 
@@ -23,8 +24,15 @@ router.get(
 );
 router.get(
   "/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
+  passport.authenticate("google", { failureRedirect: `${env.frontend_url}/login?error= there are some issues in your account` }),
   authController.googleCallbackController,
+);
+
+router.post(
+  "/change-password",
+  checkAuth(...Object.values(Role)),
+  validateRequest(userValidation.changePasswordZodSchema),
+  authController.changePassword,
 );
 
 router.post(
@@ -33,5 +41,9 @@ router.post(
   validateRequest(userValidation.resetPasswordZodSchema),
   authController.resetPassword,
 );
+
+router.post('/set-password', checkAuth(...Object.values(Role)), authController.setGooglePassword);
+// frontend -> forgot-password -> email -> user status check -> short expiration token (valid for 10 min) - email -> get frontend link -> extacrt user email & token from the forntend -> user create new password  -> hit /reset-passowrod api in hte backend -> authoriazation = token -> new password -> token verify -> passowrd hash -> save suer passowrd.
+router.post('/forget-password', authController.forgetPassowrd)
 
 export const authRoutes = router;

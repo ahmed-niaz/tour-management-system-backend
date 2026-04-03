@@ -80,6 +80,13 @@ const updateUser = async (
   return userUpdated;
 };
 
+const getMe = async(userId: string) => {
+const user = await User.findById(userId).select("-password");
+return {
+  data: user
+}
+}
+
 const getUser = async (query: Record<string, unknown>) => {
   const userQuery = new QueryBuilder(User.find(), query)
     .search(userSearchableFields)
@@ -96,6 +103,6 @@ const getUser = async (query: Record<string, unknown>) => {
 
 export const userService = {
   registerUser,
-  updateUser,
+  updateUser,getMe,
   getUser,
 };

@@ -64,12 +64,12 @@ const deleteTourType = async (id: string) => {
 
 const createTour = async (payload: ITour) => {
   const existingTour = await Tour.findOne({ title: payload.title });
-  throw new Error('error is occures')
+  // throw new Error('error is occures')
 
   if (existingTour) {
     throw new AppError(
       status.CONFLICT,
-      "a tour with this title is aleady exists",
+      "a tour with this title is aleady exists", 
     );
   }
 
@@ -206,6 +206,7 @@ const updateTour = async (tourId: string, payload: Partial<ITour>) => {
     existingTour.images &&
     existingTour.images.length > 0
   ) {
+    // now all the existing and new images are on the payload.
     payload.images = [...payload.images, ...existingTour.images];
   }
 

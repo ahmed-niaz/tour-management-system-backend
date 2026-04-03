@@ -32,6 +32,11 @@ const envSchema = z.object({
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
+  SMTP_PASS:z.string(),
+  SMTP_USER: z.string(),
+  SMTP_FROM: z.string(),
+  SMTP_PORT: z.coerce.number(),
+  SMTP_HOST: z.string(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -72,4 +77,9 @@ export const env = {
   cloudinary_cloud_name: parsedEnv.data.CLOUDINARY_CLOUD_NAME,
   cloudinary_api_key: parsedEnv.data.CLOUDINARY_API_KEY,
   cloudinary_api_secret: parsedEnv.data.CLOUDINARY_API_SECRET,
+  smtp_host: parsedEnv.data.SMTP_HOST,
+  smtp_port: parsedEnv.data.SMTP_PORT,
+  smtp_from: parsedEnv.data.SMTP_FROM,
+  smtp_user : parsedEnv.data.SMTP_USER,
+  smtp_pass: parsedEnv.data.SMTP_PASS
 } as const;

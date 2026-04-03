@@ -81,6 +81,12 @@ const deleteTourType = catchAsync(async (req: Request, res: Response) => {
 /************* TOUR ********************/
 
 const createTour = catchAsync(async (req: Request, res: Response) => {
+
+//   console.log({
+//    body: req.body,
+// images: req.files
+
+//   })
   const payload: ITour = {
     ...req.body,
     images: (req.files as (Express.Multer.File & { secure_url?: string })[]).map((file) => file?.secure_url || file?.path),

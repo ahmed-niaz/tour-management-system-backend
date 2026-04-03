@@ -2,9 +2,13 @@ import status from "http-status";
 import { AppError } from "../../errors/app.errors";
 
 import { User } from "../user/user.model";
-import { refreshAccessToken} from "../../utils/user.token";
+import { refreshAccessToken } from "../../utils/user.token";
 import { JwtPayload } from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { IAuthProvider, IsActive } from "../user/user.interface";
+import { env } from "../../config";
+import jwt from 'jsonwebtoken'
+import { sendEmail } from "../../utils/send.email";
 
 
 /*
@@ -67,8 +71,8 @@ const generateAccessToken = async (refreshToken: string) => {
   };
 };
 
-// todo: reset password
-const resetPassword = async (
+// todo: chnage password
+const changePassword = async (
   oldPassword: string,
   newPassword: string,
   decodedToken: JwtPayload,
@@ -104,8 +108,100 @@ const resetPassword = async (
   await userData.save();
 };
 
+// todo: reset password
+const resetPassword = async (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  payload: Record<string, any>,
+  decodedToken: JwtPayload,
+) => {
+
+  if (payload.id != decodedToken.userId) {
+    throw new AppError(status.UNAUTHORIZED, "user token not found");
+  }
+
+  const isUserExists = await User.findById(decodedToken.userId);
+
+  if (!isUserExists) {
+    throw new AppError(status.NOT_FOUND, "user not found");
+  }
+
+  isUserExists.password = payload.newPassword;
+  await isUserExists.save();
+
+
+};
+
+// todo: set password
+const setGooglePassword = async (userId: string, plainPassword: string) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new AppError(status.NOT_ACCEPTABLE, 'user not found');
+  }
+
+  if (user.password && user.auths.some(providerObject => providerObject.provider === 'google')) {
+    throw new AppError(status.BAD_REQUEST, 'You have already set the password')
+  }
+
+  const credentialProvider: IAuthProvider = {
+    provider: "credential",
+    providerId: user.email
+  }
+  // const rounds = Number(env.bcrypt_salt_rounds) || 10;
+  // const hashedPassword = await bcrypt.hash(plainPassword, rounds);
+
+  const auths: IAuthProvider[] = [...user.auths, credentialProvider];
+
+  // user.password = hashedPassword;
+  user.password = plainPassword;
+
+  user.auths = auths
+  await user.save()
+
+}
+
+const forgetPassowrd = async (email: string) => {
+
+  const isUserExists = await User.findOne({ email });
+
+  if (!isUserExists) {
+    throw new AppError(status.BAD_REQUEST, 'user does not exsit')
+  }
+
+  if (isUserExists.isActive === IsActive.BLOCKED || isUserExists.isActive === IsActive.INACTIVE) {
+    throw new AppError(status.BAD_REQUEST, `use is ${isUserExists.isActive}`)
+  }
+
+  if (isUserExists.isDeleted) {
+    throw new AppError(status.BAD_REQUEST, 'user does not exsit')
+  }
+
+  const jwtPayload = {
+    userId: isUserExists._id,
+    email: isUserExists.email,
+    role: isUserExists.role
+  }
+
+  const resetToken = jwt.sign(jwtPayload, env.jwt_access_secret, {
+    expiresIn: '15m'
+  })
+
+  // todo: create ui link
+  const resetLink = `${env.frontend_url}/reset-password?id=${isUserExists._id}&token=${resetToken}`;
+
+  await sendEmail({
+    to: isUserExists.email,
+    subject: 'password reset',
+    templateName: 'forgetPassword',
+    templateData: {
+      name: isUserExists.name,
+      resetLink
+    }
+  })
+
+}
 export const authService = {
   // credintialsLogin,
   generateAccessToken,
-  resetPassword,
+  resetPassword, changePassword, setGooglePassword, forgetPassowrd
 };
