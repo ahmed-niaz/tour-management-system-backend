@@ -5,6 +5,7 @@ import { divisionRoutes } from "../modules/division/division.route";
 import { tourRoutes } from "../modules/tour/tour.route";
 import { bookingRoutes } from "../modules/booking/booking.route";
 import { paymentRoutes } from "../modules/payment/payment.route";
+import { otpRoute } from "../modules/otp/otp.route";
 
 const router = Router();
 
@@ -39,6 +40,10 @@ const moduleRoutes: ModuleRoute[] = [
     path: "/payment",
     route: paymentRoutes,
   },
+  {
+    path: "/otp",
+    route: otpRoute,
+  }
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
