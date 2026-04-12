@@ -9,6 +9,7 @@ import { setAuthCookie } from "../../utils/set.cookie";
 import { env } from "../../config";
 import passport from "passport";
 import { userTokens } from "../../utils/user.token";
+import { JwtPayload } from "jsonwebtoken";
 
 const credintialsLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -108,8 +109,8 @@ const logOut = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// todo: reset password
-const resetPassword = catchAsync(async (req: Request, res: Response) => {
+// todo: change password
+const changePassword = catchAsync(async (req: Request, res: Response) => {
   const { oldPassword, newPassword } = req.body;
   const decodedToken = req.user;
 
@@ -117,7 +118,7 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
     throw new AppError(status.UNAUTHORIZED, "user token not found");
   }
 
-  await authService.resetPassword(oldPassword, newPassword, decodedToken);
+  await authService.changePassword(oldPassword, newPassword, decodedToken as JwtPayload);
 
   sendResponse(res, {
     success: true,
@@ -126,6 +127,45 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
     data: null,
   });
 });
+
+
+// todo: reset password
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  const payload = req.body;
+  const decodedToken = req.user;
+
+  if (!decodedToken) {
+    throw new AppError(status.UNAUTHORIZED, "user token not found");
+  }
+
+  await authService.resetPassword(payload, decodedToken as JwtPayload);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "user password reset successfully",
+    data: null,
+  });
+});
+
+
+// todo: set Password for Google
+const setGooglePassword = catchAsync(async (req: Request, res: Response) => {
+
+  const decodedToken = req.user as JwtPayload;
+  const { password } = req.body;
+
+  await authService.setGooglePassword(decodedToken.userId, password);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "user password set successfully",
+    data: null,
+  });
+
+})
+
 
 // todo: google callback controller
 const googleCallbackController = catchAsync(
@@ -158,10 +198,26 @@ const googleCallbackController = catchAsync(
   },
 );
 
+
+// todo: forget Passowrd (public route)
+const forgetPassowrd = catchAsync(async (req: Request, res: Response, _next: NextFunction) => {
+
+  const { email } = req.body;
+  await authService.forgetPassowrd(email)
+
+  sendResponse(res, {
+    success: true,
+    statusCode: status.OK,
+    message: "email set successfully",
+    data: null,
+  })
+})
+
+
 export const authController = {
   credintialsLogin,
   generateAccessToken,
   logOut,
-  resetPassword,
-  googleCallbackController,
+  resetPassword, changePassword,
+  googleCallbackController, setGooglePassword, forgetPassowrd
 };

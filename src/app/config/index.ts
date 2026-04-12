@@ -4,7 +4,7 @@ import * as z from "zod";
 const envSchema = z.object({
   PORT: z.string().default("5000"),
   NODE_ENV: z.enum(["development", "production", "test"]),
-  DATABASE_URI: z.string().url(),
+  DATABASE_URI: z.string(),
   BCRYPT_SALT_ROUNDS: z.string(),
   JWT_ACCESS_EXPIRES: z.string(),
   JWT_ACCESS_SECRET: z.string(),
@@ -17,6 +17,31 @@ const envSchema = z.object({
   GOOGLE_CALLBACK_URL: z.string().optional(),
   EXPRESS_SESSION_SECRET: z.string().optional(),
   FRONTEND_URL: z.string().optional(),
+  // todo: SSL related env variables
+  SSL_STORE_ID: z.string().optional(),
+  SSL_STORE_PASS: z.string().optional(),
+  SSL_PAYMENT_API: z.string().optional(),
+  SSL_VALIDATION_API: z.string().optional(),
+  SSL_SUCCESS_BACKEND_URL: z.string().optional(),
+  SSL_FAIL_BACKEND_URL: z.string().optional(),
+  SSL_CANCEL_BACKEND_URL: z.string().optional(),
+  SSL_SUCCESS_FRONTEND_URL: z.string().optional(),
+  SSL_FAIL_FRONTEND_URL: z.string().optional(),
+  SSL_CANCEL_FRONTEND_URL: z.string().optional(),
+  SSL_IPN_URL : z.string().optional(),
+  // todo: cloudinary
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
+  SMTP_PASS:z.string().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_FROM: z.string().optional(),
+  SMTP_PORT: z.coerce.number().optional(),
+  SMTP_HOST: z.string().optional(),
+  REDIS_HOST: z.string().optional(),
+  REDIS_PORT: z.coerce.number().optional(),
+  REDIS_USERNAME: z.string().optional(),
+  REDIS_PASSWORD: z.string().optional()
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -26,8 +51,6 @@ if (!parsedEnv.success) {
   console.error("❌ Invalid environment variables:", parsedEnv.error.format());
   process.exit(1);
 }
-
-
 
 export const env = {
   port: Number(parsedEnv.data.PORT),
@@ -42,7 +65,31 @@ export const env = {
   jwt_refresh_expiresIn: parsedEnv.data.JWT_REFRESH_EXPIRES,
   google_client_id: parsedEnv.data.GOOGLE_CLIENT_ID,
   google_client_secret: parsedEnv.data.GOOGLE_CLIENT_SECRET,
-  google_callback_url: parsedEnv.data.GOOGLE_CALLBACK_URL || process.env.GOOLGE_CALLBACK_URL,
+  google_callback_url:
+    parsedEnv.data.GOOGLE_CALLBACK_URL || process.env.GOOLGE_CALLBACK_URL,
   express_session_secret: parsedEnv.data.EXPRESS_SESSION_SECRET,
   frontend_url: parsedEnv.data.FRONTEND_URL,
+  ssl_store_id: parsedEnv.data.SSL_STORE_ID,
+  ssl_store_pass: parsedEnv.data.SSL_STORE_PASS,
+  ssl_payment_api: parsedEnv.data.SSL_PAYMENT_API,
+  ssl_validation_api: parsedEnv.data.SSL_VALIDATION_API,
+  ssl_success_backend_url: parsedEnv.data.SSL_SUCCESS_BACKEND_URL,
+  ssl_fail_backend_url: parsedEnv.data.SSL_FAIL_BACKEND_URL,
+  ssl_cancel_backend_url: parsedEnv.data.SSL_CANCEL_BACKEND_URL,
+  ssl_success_frontend_url: parsedEnv.data.SSL_SUCCESS_FRONTEND_URL,
+  ssl_fail_frontend_url: parsedEnv.data.SSL_FAIL_FRONTEND_URL,
+  ssl_cancel_frontend_url: parsedEnv.data.SSL_CANCEL_FRONTEND_URL,
+  ssl_ipn_url: parsedEnv.data.SSL_IPN_URL,
+  cloudinary_cloud_name: parsedEnv.data.CLOUDINARY_CLOUD_NAME,
+  cloudinary_api_key: parsedEnv.data.CLOUDINARY_API_KEY,
+  cloudinary_api_secret: parsedEnv.data.CLOUDINARY_API_SECRET,
+  smtp_host: parsedEnv.data.SMTP_HOST,
+  smtp_port: parsedEnv.data.SMTP_PORT,
+  smtp_from: parsedEnv.data.SMTP_FROM,
+  smtp_user : parsedEnv.data.SMTP_USER,
+  smtp_pass: parsedEnv.data.SMTP_PASS,
+  redis_host: parsedEnv.data.REDIS_HOST,
+  redis_port: parsedEnv.data.REDIS_PORT,
+  redis_username: parsedEnv.data.REDIS_USERNAME,
+  redis_password: parsedEnv.data.REDIS_PASSWORD
 } as const;

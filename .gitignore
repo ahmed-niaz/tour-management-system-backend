@@ -13,6 +13,8 @@ pids
 
 # Environment Variables
 .env
+.env.*
+.env.dev
 
 # Node modules
 node_modules/
@@ -51,3 +53,4 @@ coverage/
 .DS_Store
 
 .txt
+.vercel

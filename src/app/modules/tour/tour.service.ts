@@ -4,10 +4,11 @@ import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
 import QueryBuilder from "../../utils/queryBuilders";
 import { tourSearableFields, tourTypeSearchableFields } from "./tour.constant";
+import { DestroyImageFromCloudinary } from "../../helpers/handle.destroy.couldinary.image";
 
 const createTourType = async (payload: ITourType) => {
-  const exisitingTourType = await TourType.findOne({ name: payload.name });
-  if (exisitingTourType) {
+  const existingTourType = await TourType.findOne({ name: payload.name });
+  if (existingTourType) {
     throw new AppError(
       status.CONFLICT,
       "a tour type with this name is aleady exists",
@@ -42,9 +43,9 @@ const updateTourType = async (
   tourTypeId: string,
   payload: Partial<ITourType>,
 ) => {
-  const exisitingTourType = await TourType.findById(tourTypeId);
+  const existingTourType = await TourType.findById(tourTypeId);
 
-  if (!exisitingTourType) {
+  if (!existingTourType) {
     throw new Error("Tour Type is not found.");
   }
   const result = await TourType.findByIdAndUpdate(tourTypeId, payload, {
@@ -62,12 +63,13 @@ const deleteTourType = async (id: string) => {
 /************* TOUR ********************/
 
 const createTour = async (payload: ITour) => {
-  const exisitingTour = await Tour.findOne({ title: payload.title });
+  const existingTour = await Tour.findOne({ title: payload.title });
+  // throw new Error('error is occures')
 
-  if (exisitingTour) {
+  if (existingTour) {
     throw new AppError(
       status.CONFLICT,
-      "a tour with this title is aleady exists",
+      "a tour with this title is aleady exists", 
     );
   }
 
@@ -191,21 +193,65 @@ const getSingleTour = async (slug: string) => {
 };
 
 const updateTour = async (tourId: string, payload: Partial<ITour>) => {
-  const exisitingTour = await Tour.findById(tourId);
+  const existingTour = await Tour.findById(tourId);
 
-  if (!exisitingTour) {
+  if (!existingTour) {
     throw new Error("Tour Type is not found.");
   }
+
+  // todo: add images
+  if (
+    payload.images &&
+    payload.images.length > 0 &&
+    existingTour.images &&
+    existingTour.images.length > 0
+  ) {
+    // now all the existing and new images are on the payload.
+    payload.images = [...payload.images, ...existingTour.images];
+  }
+
+  // todo:  delete images [mongodb handler]
+  if (
+    payload.deleteImages &&
+    payload.deleteImages.length > 0 &&
+    existingTour.images &&
+    existingTour.images.length > 0
+  ) {
+    const restImagesDB = existingTour.images.filter(
+      (imageUrl) => !payload.deleteImages?.includes(imageUrl),
+    );
+
+    // todo: sanitize the image
+    const updatedPayloadImages = (payload.images || [])
+      .filter((imageUrl) => !payload.deleteImages?.includes(imageUrl))
+      .filter((imageUrl) => !restImagesDB.includes(imageUrl));
+
+    payload.images = [...restImagesDB, ...updatedPayloadImages];
+  }
+
   const result = await Tour.findByIdAndUpdate(tourId, payload, {
     new: true,
   });
+  // todo:  remove data from cloudinary
+  if (
+    payload.deleteImages &&
+    payload.deleteImages.length > 0 &&
+    existingTour.images &&
+    existingTour.images.length > 0
+  ) {
+    const deleteImageFromCloudinary = new DestroyImageFromCloudinary();
+
+    await Promise.all(
+      payload.deleteImages.map((url) => deleteImageFromCloudinary.deleteImage(url)),
+    );
+  }
 
   return result;
 };
 
 const deleteTour = async (tourId: string) => {
-  const exisitingTour = await Tour.findById(tourId);
-  if (!exisitingTour) {
+  const existingTour = await Tour.findById(tourId);
+  if (!existingTour) {
     throw new AppError(status.CONFLICT, "Tour ID is not found.");
   }
   const result = await Tour.findByIdAndDelete(tourId);
@@ -220,6 +266,7 @@ export const tourService = {
   deleteTourType,
   createTour,
   updateTour,
-  getAllTours,getSingleTour,
+  getAllTours,
+  getSingleTour,
   deleteTour,
 };

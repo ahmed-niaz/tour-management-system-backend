@@ -3,6 +3,7 @@ import catchAsync from "../../utils/catch.async";
 import { sendResponse } from "../../utils/send.response";
 import status from "http-status";
 import { tourService } from "./tour.service";
+import { ITour } from "./tour.interface";
 
 const createTourType = catchAsync(async (req: Request, res: Response) => {
   const tourTypeData = req.body;
@@ -80,9 +81,18 @@ const deleteTourType = catchAsync(async (req: Request, res: Response) => {
 /************* TOUR ********************/
 
 const createTour = catchAsync(async (req: Request, res: Response) => {
-  const tourData = req.body;
 
-  const result = await tourService.createTour(tourData);
+//   console.log({
+//    body: req.body,
+// images: req.files
+
+//   })
+  const payload: ITour = {
+    ...req.body,
+    images: (req.files as (Express.Multer.File & { secure_url?: string })[]).map((file) => file?.secure_url || file?.path),
+  };
+
+  const result = await tourService.createTour(payload);
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
@@ -123,7 +133,10 @@ const updateTour = catchAsync(async (req: Request, res: Response) => {
     ? req.params.id[0]
     : req.params.id;
 
-  const payload = req.body;
+  const payload: ITour = {
+    ...req.body,
+    images: (req.files as (Express.Multer.File & { secure_url?: string })[]).map((file) => file?.secure_url || file?.path),
+  };
 
   const result = await tourService.updateTour(tourId, payload);
 

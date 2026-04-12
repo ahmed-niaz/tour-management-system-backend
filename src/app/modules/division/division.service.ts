@@ -3,9 +3,12 @@ import { AppError } from "../../errors/app.errors";
 import { IDivision } from "./division.interface";
 import { Division } from "./division.model";
 import QueryBuilder from "../../utils/queryBuilders";
+import { DestroyImageFromCloudinary } from "../../helpers/handle.destroy.couldinary.image";
 
 const createDivision = async (payload: IDivision) => {
   const existingDivision = await Division.findOne({ name: payload.name });
+
+  
 
   if (existingDivision) {
     throw new AppError(
@@ -89,6 +92,12 @@ const updateDivision = async (
     new: true,
     runValidators: true,
   });
+
+  // update thumbnail image
+  if (payload.thumbnail && existingDivision.thumbnail) {
+    const destroyer = new DestroyImageFromCloudinary();
+    await destroyer.deleteImage(existingDivision.thumbnail);
+  }
 
   return updateDivision;
 };

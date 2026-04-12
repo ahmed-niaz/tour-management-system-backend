@@ -61,6 +61,10 @@ export const checkAuth = (...authRoles: string[]) =>
         throw new AppError(status.BAD_REQUEST, "user is deleted");
       }
 
+      if(!existingUser.isVerified) {
+       throw new AppError(status.BAD_REQUEST, "user is not verified");
+      }
+
     if (!authRoles.includes(verifiedToken.role)) {
       throw new AppError(status.UNAUTHORIZED, "you are not permitted");
     }

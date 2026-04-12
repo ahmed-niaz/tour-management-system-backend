@@ -50,7 +50,7 @@ const updateUserZodSchema = z.object({
     .trim()
     .optional(),
 
-  password: passwordSchema.optional(),
+  // password: passwordSchema.optional(),
   role: z.enum(Object.values(Role) as [string]).optional(),
   isActive: z.enum(Object.values(IsActive) as [string]).optional(),
   isDeleted: z.string().optional(),
@@ -63,13 +63,18 @@ const updateUserZodSchema = z.object({
     .optional(),
 });
 
-const resetPasswordZodSchema = z.object({
+const changePasswordZodSchema = z.object({
   oldPassword: z.string().min(1, "Old password is required"),
+  newPassword: passwordSchema,
+});
+
+const resetPasswordZodSchema = z.object({
+  id: z.string(),
   newPassword: passwordSchema,
 });
 
 export const userValidation = {
   createUserZodSchema,
   updateUserZodSchema,
-  resetPasswordZodSchema,
+  resetPasswordZodSchema, changePasswordZodSchema
 };

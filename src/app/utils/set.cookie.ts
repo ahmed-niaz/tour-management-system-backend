@@ -8,6 +8,7 @@ export interface AuthTokens {
 const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
+  sameSite: "none" as const
 };
 
 export const setAuthCookie = (res: Response, tokens: AuthTokens) => {
