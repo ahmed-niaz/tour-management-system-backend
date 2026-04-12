@@ -7,32 +7,57 @@ import { seedSuperAdmin } from "./app/utils/seed.super.admin";
 import dns from 'dns'
 import { getRedisClient } from "./app/config/redis.config";
 
-dns.setServers(['8.8.8.8', '1.1.1.1'])
+// Vercel uses internal AWS DNS. Only override locally.
+if (!process.env.VERCEL) {
+  dns.setServers(['8.8.8.8', '1.1.1.1']);
+}
 
 let server: Server | null = null;
 
+let isConnected = false;
+
 async function bootstrap() {
+  if (isConnected) return;
   const mongoose = (await import("mongoose")).default;
-  console.log("Using DNS servers:", dns.getServers());
+  if (!process.env.VERCEL) {
+    console.log("Using DNS servers:", dns.getServers());
+  }
+  
   await mongoose.connect(env.database_url as string, {
     connectTimeoutMS: 10000,
     serverSelectionTimeoutMS: 10000,
   });
-  server = app.listen(env.port, () => {
-    console.log(`app listening on port ${env.port}`);
-  });
+  
+  await getRedisClient();
+  await seedSuperAdmin();
+  isConnected = true;
 }
 
-(async () => {
+// 1. LOCAL DEVELOPMENT: Start the actual express server that listens on a port
+if (!process.env.VERCEL) {
+  (async () => {
+    try {
+      await bootstrap();
+      server = app.listen(env.port, () => {
+        console.log(`app listening on port ${env.port}`);
+      });
+    } catch (e) {
+      console.error("Startup failed:", e);
+      process.exit(1);
+    }
+  })();
+}
+
+// 2. VERCEL DEPLOYMENT: Export a serverless function handler instead
+export default async function handler(req: any, res: any) {
   try {
-    await getRedisClient();
     await bootstrap();
-    await seedSuperAdmin();
-  } catch (e) {
-    console.error("Startup failed:", e);
-    process.exit(1);
+    return app(req, res);
+  } catch (error) {
+    console.error("Startup error in Vercel:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
-})()
+}
 
 // todo: Handle unhandled promise rejections [ which is connected with promise]
 process.on("unhandledRejection", (reason: string | Error, promise: Promise<unknown>) => {
