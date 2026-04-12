@@ -15,7 +15,10 @@ import expressSession from "express-session";
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(cors({
+  origin: env.frontend_url,
+  credentials: true
+}));
 app.use(
   expressSession({
     secret: env.express_session_secret || "your-secret-key",

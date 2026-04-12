@@ -3,8 +3,6 @@ import { IAuthProvider, IUser, Role } from "./user.interface";
 import { User } from "./user.model";
 import { AppError } from "../../errors/app.errors";
 import { JwtPayload } from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import { env } from "../../config";
 import QueryBuilder from "../../utils/queryBuilders";
 import { userSearchableFields } from "./user.constant";
 
@@ -40,10 +38,22 @@ const updateUser = async (
   payload: Partial<IUser>,
   decodedToken: JwtPayload,
 ) => {
+
+  if(decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
+    if(userId !== decodedToken.userId) {
+      throw new AppError(status.BAD_REQUEST, 'you are not authoirzed')
+    }
+  }
+
+
   const isUserExists = await User.findById(userId);
 
   if (!isUserExists) {
     throw new AppError(status.NOT_FOUND, "user not found");
+  }
+
+  if(decodedToken.role === Role.ADMIN && isUserExists.role === Role.SUPER_ADMIN) {
+    throw new AppError(status.NOT_FOUND,'you are not authorized')
   }
 
   if (payload.role) {
@@ -51,9 +61,9 @@ const updateUser = async (
       throw new AppError(status.FORBIDDEN, "You are not authorized");
     }
 
-    if (payload.role === Role.SUPER_ADMIN && decodedToken.role === Role.ADMIN) {
-      throw new AppError(status.FORBIDDEN, "You are not authorized");
-    }
+    // if (payload.role === Role.SUPER_ADMIN && decodedToken.role === Role.ADMIN) {
+    //   throw new AppError(status.FORBIDDEN, "You are not authorized");
+    // }
   }
 
   if (payload.isActive || payload.isDeleted || payload.isVerified) {
@@ -62,15 +72,15 @@ const updateUser = async (
     }
   }
 
-  if (payload.password) {
-    // payload.password = await bcrypt.hash(
-    //   payload.password,
-    //   Number(env.bcrypt_salt_rounds),
-    // );
+  // if (payload.password) {
+  //   // payload.password = await bcrypt.hash(
+  //   //   payload.password,
+  //   //   Number(env.bcrypt_salt_rounds),
+  //   // );
 
-    const rounds = Number(env.bcrypt_salt_rounds) || 10;
-    payload.password = await bcrypt.hash(payload.password, rounds);
-  }
+  //   const rounds = Number(env.bcrypt_salt_rounds) || 10;
+  //   payload.password = await bcrypt.hash(payload.password, rounds);
+  // }
 
   const userUpdated = await User.findByIdAndUpdate(userId, payload, {
     new: true,
@@ -79,6 +89,13 @@ const updateUser = async (
 
   return userUpdated;
 };
+
+const getSingleUser = async(userId: string) => {
+const user = await User.findById(userId).select("-password");
+return {
+  data: user
+}
+}
 
 const getMe = async(userId: string) => {
 const user = await User.findById(userId).select("-password");
@@ -102,7 +119,7 @@ const getUser = async (query: Record<string, unknown>) => {
 };
 
 export const userService = {
-  registerUser,
+  registerUser,getSingleUser,
   updateUser,getMe,
   getUser,
 };

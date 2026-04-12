@@ -1,31 +1,37 @@
 /* eslint-disable no-console */
 import { Server } from "http";
 import app from "./app";
-import mongoose from "mongoose";
 import { env } from "./app/config";
 import { seedSuperAdmin } from "./app/utils/seed.super.admin";
 
 import dns from 'dns'
+import { getRedisClient } from "./app/config/redis.config";
 
-dns.setServers(['1.1.1.1', '8.8.8.8'])
+dns.setServers(['8.8.8.8', '1.1.1.1'])
 
 let server: Server | null = null;
 
 async function bootstrap() {
-  try {
-    // console.log(envVars.node_env);
-    await mongoose.connect(env.database_url as string);
-    server = app.listen(env.port, () => {
-      console.log(`app listening on port ${env.port}`);
-    });
-  } catch (e) {
-    console.error("Failed to connect ", e);
-  }
+  const mongoose = (await import("mongoose")).default;
+  console.log("Using DNS servers:", dns.getServers());
+  await mongoose.connect(env.database_url as string, {
+    connectTimeoutMS: 10000,
+    serverSelectionTimeoutMS: 10000,
+  });
+  server = app.listen(env.port, () => {
+    console.log(`app listening on port ${env.port}`);
+  });
 }
 
 (async () => {
-  await bootstrap()
-  await seedSuperAdmin()
+  try {
+    await getRedisClient();
+    await bootstrap();
+    await seedSuperAdmin();
+  } catch (e) {
+    console.error("Startup failed:", e);
+    process.exit(1);
+  }
 })()
 
 // todo: Handle unhandled promise rejections [ which is connected with promise]

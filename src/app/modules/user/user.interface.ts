@@ -41,6 +41,7 @@ export interface IUser {
   bookings?: Types.ObjectId[];
   guides?: Types.ObjectId[];
   toObject(): { [x: string]: unknown; password: unknown; };
+  createdAt?: Date
 }
 
 // Static methods (methods on the Model)

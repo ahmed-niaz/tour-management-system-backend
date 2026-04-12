@@ -4,7 +4,7 @@ import * as z from "zod";
 const envSchema = z.object({
   PORT: z.string().default("5000"),
   NODE_ENV: z.enum(["development", "production", "test"]),
-  DATABASE_URI: z.string().url(),
+  DATABASE_URI: z.string(),
   BCRYPT_SALT_ROUNDS: z.string(),
   JWT_ACCESS_EXPIRES: z.string(),
   JWT_ACCESS_SECRET: z.string(),
@@ -28,15 +28,20 @@ const envSchema = z.object({
   SSL_SUCCESS_FRONTEND_URL: z.string().optional(),
   SSL_FAIL_FRONTEND_URL: z.string().optional(),
   SSL_CANCEL_FRONTEND_URL: z.string().optional(),
+  SSL_IPN_URL : z.string().optional(),
   // todo: cloudinary
   CLOUDINARY_CLOUD_NAME: z.string().optional(),
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
-  SMTP_PASS:z.string(),
-  SMTP_USER: z.string(),
-  SMTP_FROM: z.string(),
-  SMTP_PORT: z.coerce.number(),
-  SMTP_HOST: z.string(),
+  SMTP_PASS:z.string().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_FROM: z.string().optional(),
+  SMTP_PORT: z.coerce.number().optional(),
+  SMTP_HOST: z.string().optional(),
+  REDIS_HOST: z.string().optional(),
+  REDIS_PORT: z.coerce.number().optional(),
+  REDIS_USERNAME: z.string().optional(),
+  REDIS_PASSWORD: z.string().optional()
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -74,6 +79,7 @@ export const env = {
   ssl_success_frontend_url: parsedEnv.data.SSL_SUCCESS_FRONTEND_URL,
   ssl_fail_frontend_url: parsedEnv.data.SSL_FAIL_FRONTEND_URL,
   ssl_cancel_frontend_url: parsedEnv.data.SSL_CANCEL_FRONTEND_URL,
+  ssl_ipn_url: parsedEnv.data.SSL_IPN_URL,
   cloudinary_cloud_name: parsedEnv.data.CLOUDINARY_CLOUD_NAME,
   cloudinary_api_key: parsedEnv.data.CLOUDINARY_API_KEY,
   cloudinary_api_secret: parsedEnv.data.CLOUDINARY_API_SECRET,
@@ -81,5 +87,9 @@ export const env = {
   smtp_port: parsedEnv.data.SMTP_PORT,
   smtp_from: parsedEnv.data.SMTP_FROM,
   smtp_user : parsedEnv.data.SMTP_USER,
-  smtp_pass: parsedEnv.data.SMTP_PASS
+  smtp_pass: parsedEnv.data.SMTP_PASS,
+  redis_host: parsedEnv.data.REDIS_HOST,
+  redis_port: parsedEnv.data.REDIS_PORT,
+  redis_username: parsedEnv.data.REDIS_USERNAME,
+  redis_password: parsedEnv.data.REDIS_PASSWORD
 } as const;
