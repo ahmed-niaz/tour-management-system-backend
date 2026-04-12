@@ -50,7 +50,7 @@ const updateUserZodSchema = z.object({
     .trim()
     .optional(),
 
-  password: passwordSchema.optional(),
+  // password: passwordSchema.optional(),
   role: z.enum(Object.values(Role) as [string]).optional(),
   isActive: z.enum(Object.values(IsActive) as [string]).optional(),
   isDeleted: z.string().optional(),

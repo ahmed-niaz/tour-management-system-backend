@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #eef4f9;
+            margin: 0;
+            padding: 30px 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .main {
+            width: 100%;
+            max-width: 640px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 18px 50px rgba(21, 39, 72, 0.12);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2f80ed 0%, #56ccf2 100%);
+            padding: 32px 28px;
+            color: #ffffff;
+        }
+
+        .header .brand {
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.88;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.1;
+            font-weight: 800;
+        }
+
+        .header .subtitle {
+            margin-top: 10px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 32px 28px 38px;
+        }
+
+        .greeting {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #111827;
+        }
+
+        .text {
+            font-size: 15px;
+            line-height: 1.75;
+            margin-bottom: 28px;
+            color: #4b5563;
+        }
+
+        .summary-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background-color: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .summary-card strong {
+            display: block;
+            margin-top: 8px;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .summary-card span {
+            font-size: 13px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+        }
+
+        .summary-card.total {
+            background-color: #eef2ff;
+            border-color: #c7d2fe;
+        }
+
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .details-table th,
+        .details-table td {
+            padding: 16px 18px;
+            text-align: left;
+            font-size: 15px;
+            vertical-align: top;
+            word-break: break-word;
+            white-space: normal;
+        }
+
+        .details-table th {
+            width: 40%;
+            color: #6b7280;
+            font-weight: 600;
+            background-color: #f9fafb;
+        }
+
+        .details-table td {
+            color: #111827;
+            font-weight: 500;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .details-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .total-row th,
+        .total-row td {
+            background-color: #eef2ff;
+            color: #1d4ed8;
+            font-size: 16px;
+            font-weight: 700;
+            border-bottom: none;
+        }
+
+        .pdf-notice {
+            background-color: #f8fafc;
+            border: 1px solid #e5e7eb;
+            padding: 18px 20px;
+            border-radius: 12px;
+            color: #374151;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .footer {
+            padding: 22px 28px;
+            background-color: #f8fafc;
+            text-align: center;
+            font-size: 13px;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        @media (max-width: 520px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 24px 20px 28px;
+            }
+
+            .header {
+                padding: 28px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <table class="main">
+        <tr>
+            <td class="header">
+                <div class="brand">Tour Management System</div>
+                <h1>Booking Invoice</h1>
+                <div class="subtitle">Your reservation is confirmed and the invoice is ready.</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="content">
+                <div class="greeting">Hello <%= userName %>,</div>
+                <div class="text">
+                    Thank you for booking with us! Your payment was successful and your tour reservation is now confirmed.
+                    Keep this invoice for your records.
+                </div>
+
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <span>Transaction Reference</span>
+                        <strong><%= transactionId %></strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>Booking Date</span>
+                        <strong><%= new Date(bookingDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></strong>
+                    </div>
+                    <div class="summary-card">
+                        <span>Tour</span>
+                        <strong><%= tourTitle %></strong>
+                    </div>
+                    <div class="summary-card total">
+                        <span>Total Paid</span>
+                        <strong>$<%= Number(totalAmount).toFixed(2) %></strong>
+                    </div>
+                </div>
+
+                <table class="details-table">
+                    <tr>
+                        <th>Guest Count</th>
+                        <td><%= guestCount %></td>
+                    </tr>
+                    <tr>
+                        <th>Invoice Name</th>
+                        <td><%= userName %></td>
+                    </tr>
+                    <tr>
+                        <th>Billing Reference</th>
+                        <td><%= transactionId %></td>
+                    </tr>
+                </table>
+
+                <div class="pdf-notice">
+                    A detailed PDF invoice is attached to this email for download and printing.
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="footer">
+                &copy; <%= new Date().getFullYear() %> Tour Management System. All rights reserved.<br>
+                If you have questions, just reply to this email.
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

@@ -19,7 +19,7 @@ interface SendEmailOptions {
   to: string;
   subject: string,
   templateName: string,
-  templateData?: Record<string, unknown>,
+  templateData?: object,
   attachments?: {
     filename: string,
     content: Buffer | string,
